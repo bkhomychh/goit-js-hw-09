@@ -14,10 +14,8 @@ const options = {
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
-  onClose(selectedDates) {
-    console.log(selectedDates[0]);
-
-    if (!isDateValid(selectedDates[0])) {
+  onClose([selectedDate]) {
+    if (!isDateValid(selectedDate)) {
       showError();
       return;
     }
@@ -31,12 +29,6 @@ startBtnRef.addEventListener('click', onBtnStartClick);
 function onBtnStartClick() {
   const selectedDate = datePicker.selectedDates[0];
 
-  //* Check the date again, because time may have passed
-  if (!isDateValid(selectedDate)) {
-    showError();
-    return;
-  }
-
   startBtnRef.disabled = true;
 
   const intervalId = setInterval(() => {
@@ -47,12 +39,9 @@ function onBtnStartClick() {
       return;
     }
 
-    const timeSet = convertMs(msDifference);
+    const { days, hours, minutes, seconds } = convertMs(msDifference);
 
-    valueDaysRef.textContent = addLeadingZero(timeSet.days);
-    valueHoursRef.textContent = addLeadingZero(timeSet.hours);
-    valueMinutesRef.textContent = addLeadingZero(timeSet.minutes);
-    valueSecondsRef.textContent = addLeadingZero(timeSet.seconds);
+    updateTimerValues(days, hours, minutes, seconds);
   }, 1000);
 }
 
@@ -76,10 +65,7 @@ function convertMs(ms) {
 }
 
 function isDateValid(date) {
-  if (date - Date.now() <= 0) {
-    return false;
-  }
-  return true;
+  return date - Date.now() >= 0;
 }
 
 function showError() {
@@ -89,4 +75,11 @@ function showError() {
 
 function addLeadingZero(value) {
   return `${value}`.padStart(2, '0');
+}
+
+function updateTimerValues(days, hours, minutes, seconds) {
+  valueDaysRef.textContent = addLeadingZero(days);
+  valueHoursRef.textContent = addLeadingZero(hours);
+  valueMinutesRef.textContent = addLeadingZero(minutes);
+  valueSecondsRef.textContent = addLeadingZero(seconds);
 }
